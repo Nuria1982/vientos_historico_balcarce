@@ -1,0 +1,52 @@
+library(readxl)
+library(tidyverse)
+library(Matrix)
+library(tidyr)
+library(ggplot2)
+library(latticeExtra)
+library(patchwork)
+library(hrbrthemes)
+library(ggthemes)
+library(cowplot)
+packageVersion("cowplot")
+library(palmerpenguins)
+theme_set(theme_bw(base_size=16))
+library(ggh4x)
+library(dplyr)
+
+
+
+var.labs <- c("verano", "otono", "invierno", "primavera")
+
+names(var.labs) <- c("verano", "otono", "invierno", "primavera")
+
+graph %>%   
+  ggplot() +
+  aes(x = ano, y = vel)+
+  facet_grid(season ~ ., switch = "y", scales = "free_y", labeller = labeller(var = var.labs)) + 
+  geom_point(size = 0.8)+
+  stat_summary(fun="mean", geom="point", size=1)+
+  stat_summary(fun.data = mean_se, geom = "errorbar", width=1)+
+  geom_line(stat = "summary", fun=mean)+
+  geom_text(aes(label = d), vjust = -1.5, size = 2.5) +
+  theme(panel.spacing = unit(0, "cm", data = NULL))+ 
+  theme_bw(base_family=12) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_x_continuous(breaks = seq(from = 1990, to = 2022, by = 4)) +
+  theme(strip.placement = "outside", strip.text = element_text(family = "TT Times New Roman", face = "bold", size = 10),
+        strip.background = element_rect(fill="transparent")) +
+  labs(title = "", x="Año", y="", color = "") +
+  theme(plot.title = element_text(family = "TT Times New Roman", face = "bold", size = 10, hjust = 0, vjust = 0),
+        axis.title.x = element_text(family = "TT Times New Roman", face = "bold", size = 10),
+        axis.title.y = element_text(family = "TT Times New Roman", face = "bold", size = 10),
+        legend.position='none') +
+  facetted_pos_scales(
+    y = list(
+      var.labs == "verano" ~ scale_y_continuous(limits = c(0,125)),
+      var.labs == "otono" ~ scale_y_continuous(limits = c(0,125)),
+      var.labs == "invierno" ~ scale_y_continuous(limits = c(0,125)),
+      var.labs == "primavera" ~ scale_y_continuous(limits = c(0,125))
+    ))
+
+  ggsave("vientos.png", dpi = "print", limitsize = FALSE, width = 200, height =150, units = "mm")
+  
